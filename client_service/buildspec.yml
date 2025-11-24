@@ -37,13 +37,10 @@ phases:
       - echo Writing image definitions file...
       - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
       - cat imageDetail.json
+      - echo Configuring kubectl...
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+      - echo Updating Kubernetes deployment...
       - |
-        # Update Kubernetes deployment with new image
-        echo Configuring kubectl...
-        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
-      - |
-        # Update deployment using YAML file
-        echo Updating Kubernetes deployment...
         DEPLOYMENT_YAML="../Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml"
         if [ ! -f "$DEPLOYMENT_YAML" ]; then
           echo "Warning: Deployment YAML not found at $DEPLOYMENT_YAML, trying alternative path..."
@@ -53,9 +50,7 @@ phases:
           echo "Error: Deployment YAML file not found. Please ensure the file exists in the repository."
           exit 1
         fi
-        # Update image tag in YAML file
         sed -i.bak "s|image:.*client-service-dev:.*|image: $REPOSITORY_URI:$IMAGE_TAG|g" "$DEPLOYMENT_YAML"
-        # Apply the deployment
         kubectl apply -f "$DEPLOYMENT_YAML" -n $K8S_NAMESPACE
         kubectl rollout status deployment/client-service -n $K8S_NAMESPACE --timeout=300s
         echo Deployment completed successfully!
