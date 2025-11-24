@@ -17,7 +17,7 @@ phases:
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
-      - echo "Build started on `date`"
+      - echo "Build started"
       - echo "Building the Docker image..."
 
   build:
@@ -88,8 +88,8 @@ phases:
           DEPLOYMENT_YAML="../k8s/auth-service-deployment.yaml"
         elif [ -f "k8s/auth-service-deployment.yaml" ]; then
           DEPLOYMENT_YAML="k8s/auth-service-deployment.yaml"
-        elif [ -f "../k8s/auth-service-deployment.yaml" ]; then
-          DEPLOYMENT_YAML="../k8s/auth-service-deployment.yaml"
+        elif [ -f "Ginthi_Backend-development/ginthi_agents/k8s/auth-service-deployment.yaml" ]; then
+          DEPLOYMENT_YAML="Ginthi_Backend-development/ginthi_agents/k8s/auth-service-deployment.yaml"
         else
           echo "Error: Deployment YAML file not found. Please ensure the file exists in the repository."
           exit 1
