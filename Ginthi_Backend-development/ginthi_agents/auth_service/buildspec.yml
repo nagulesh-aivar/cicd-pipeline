@@ -24,13 +24,29 @@ phases:
     commands:
       - |
         echo "Current directory: $(pwd)"
-        if [ ! -f "Dockerfile" ]; then
-          echo "Dockerfile not found in current directory, changing to auth_service..."
-          cd auth_service || { echo "Error: auth_service directory not found"; exit 1; }
+        DOCKERFILE_PATH=""
+        BUILD_CONTEXT="."
+        if [ -f "Dockerfile" ]; then
+          DOCKERFILE_PATH="Dockerfile"
+          BUILD_CONTEXT="."
+        elif [ -f "Ginthi_Backend-development/ginthi_agents/auth_service/Dockerfile" ]; then
+          DOCKERFILE_PATH="Ginthi_Backend-development/ginthi_agents/auth_service/Dockerfile"
+          BUILD_CONTEXT="Ginthi_Backend-development/ginthi_agents/auth_service"
+        elif [ -f "auth_service/Dockerfile" ]; then
+          DOCKERFILE_PATH="auth_service/Dockerfile"
+          BUILD_CONTEXT="auth_service"
+        else
+          echo "Error: Dockerfile not found in any expected location"
+          echo "Searched in:"
+          echo "  - ./Dockerfile"
+          echo "  - ./Ginthi_Backend-development/ginthi_agents/auth_service/Dockerfile"
+          echo "  - ./auth_service/Dockerfile"
+          exit 1
         fi
-        echo "Building from directory: $(pwd)"
+        echo "Using Dockerfile: $DOCKERFILE_PATH"
+        echo "Build context: $BUILD_CONTEXT"
         echo "Building image: $REPOSITORY_URI:$IMAGE_TAG"
-        docker build --platform linux/amd64 -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile . || { echo "Docker build failed!"; exit 1; }
+        docker build --platform linux/amd64 -t $REPOSITORY_URI:$IMAGE_TAG -f "$DOCKERFILE_PATH" "$BUILD_CONTEXT" || { echo "Docker build failed!"; exit 1; }
         docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
         echo "Verifying images were created..."
         docker images | grep $ECR_REPOSITORY || { echo "Error: Images not found after build"; exit 1; }
