@@ -8,50 +8,100 @@ env:
     IMAGE_TAG: "latest"
     EKS_CLUSTER_NAME: "ginthi-dataplane-dev"
     K8S_NAMESPACE: "default"
-  parameter-store:
-    KUBECONFIG_BUCKET: "/ginthi/cicd/kubeconfig-bucket"
 
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
+      - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - echo Repository URI: $REPOSITORY_URI
-      - echo Image tag: $IMAGE_TAG
+      - echo "Build started on `date`"
+      - echo "Building the Docker image..."
 
   build:
     commands:
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
-      - echo Build completed on `date`
+      - |
+        echo "Current directory: $(pwd)"
+        if [ ! -f "Dockerfile" ]; then
+          echo "Dockerfile not found in current directory, changing to auth_service..."
+          cd auth_service || { echo "Error: auth_service directory not found"; exit 1; }
+        fi
+        echo "Building from directory: $(pwd)"
+        echo "Building image: $REPOSITORY_URI:$IMAGE_TAG"
+        docker build --platform linux/amd64 -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile . || { echo "Docker build failed!"; exit 1; }
+        docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+        echo "Verifying images were created..."
+        docker images | grep $ECR_REPOSITORY || { echo "Error: Images not found after build"; exit 1; }
+        echo "Build completed on `date`"
 
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker images...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:latest
-      - echo Writing image definitions file...
-      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
-      - cat imageDetail.json
+      - echo "Build completed on `date`"
       - |
-        # Update Kubernetes deployment with new image
-        echo Configuring kubectl...
-        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
-        - |
-          # Update deployment image
-          echo Updating Kubernetes deployment...
-          kubectl set image deployment/auth-service auth-service=$REPOSITORY_URI:$IMAGE_TAG -n $K8S_NAMESPACE
-          kubectl rollout status deployment/auth-service -n $K8S_NAMESPACE --timeout=300s
-          echo Deployment completed successfully!
+        # Re-export variables to ensure they're available
+        REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
+        COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+        IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
+        echo "Repository URI: $REPOSITORY_URI"
+        echo "Image Tag: $IMAGE_TAG"
+        echo "Listing available Docker images..."
+        docker images | grep $ECR_REPOSITORY || echo "No images found with repository name"
+        echo "Pushing the Docker images..."
+        FULL_IMAGE_TAG="$REPOSITORY_URI:$IMAGE_TAG"
+        FULL_IMAGE_LATEST="$REPOSITORY_URI:latest"
+        if docker images --format "{{.Repository}}:{{.Tag}}" | grep -Fxq "$FULL_IMAGE_TAG"; then
+          echo "Pushing $FULL_IMAGE_TAG..."
+          docker push "$FULL_IMAGE_TAG" || { echo "Failed to push $FULL_IMAGE_TAG"; exit 1; }
+        else
+          echo "ERROR: Image $FULL_IMAGE_TAG not found locally!"
+          echo "Available images:"
+          docker images
+          exit 1
+        fi
+        if docker images --format "{{.Repository}}:{{.Tag}}" | grep -Fxq "$FULL_IMAGE_LATEST"; then
+          echo "Pushing $FULL_IMAGE_LATEST..."
+          docker push "$FULL_IMAGE_LATEST" || { echo "Failed to push $FULL_IMAGE_LATEST"; exit 1; }
+        else
+          echo "WARNING: Image $FULL_IMAGE_LATEST not found, skipping push"
+        fi
+      - |
+        # Re-export variables for remaining commands
+        REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
+        COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+        IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
+        echo "Writing image definitions file..."
+        printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+        cat imageDetail.json
+      - echo "Configuring kubectl..."
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+      - echo "Updating Kubernetes deployment..."
+      - |
+        # Re-export variables for deployment
+        REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
+        COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+        IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
+        # Find deployment YAML file
+        DEPLOYMENT_YAML=""
+        if [ -f "../k8s/auth-service-deployment.yaml" ]; then
+          DEPLOYMENT_YAML="../k8s/auth-service-deployment.yaml"
+        elif [ -f "k8s/auth-service-deployment.yaml" ]; then
+          DEPLOYMENT_YAML="k8s/auth-service-deployment.yaml"
+        elif [ -f "../k8s/auth-service-deployment.yaml" ]; then
+          DEPLOYMENT_YAML="../k8s/auth-service-deployment.yaml"
+        else
+          echo "Error: Deployment YAML file not found. Please ensure the file exists in the repository."
+          exit 1
+        fi
+        echo "Using deployment YAML: $DEPLOYMENT_YAML"
+        echo "Updating image to: $REPOSITORY_URI:$IMAGE_TAG"
+        sed -i.bak "s|image:.*auth-service-dev:.*|image: $REPOSITORY_URI:$IMAGE_TAG|g" "$DEPLOYMENT_YAML"
+        kubectl apply -f "$DEPLOYMENT_YAML" -n $K8S_NAMESPACE
+        kubectl rollout status deployment/auth-service -n $K8S_NAMESPACE --timeout=300s
+        echo "Deployment completed successfully!"
 
 artifacts:
   files:
     - imageDetail.json
     - '**/*'
-
