@@ -12,34 +12,34 @@ env:
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
+      - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - echo Repository URI: $REPOSITORY_URI
-      - echo Image tag: $IMAGE_TAG
+      - echo "Build started on `date`"
+      - echo "Building the Docker image..."
+      - echo "Repository URI: $REPOSITORY_URI"
+      - echo "Image tag: $IMAGE_TAG"
 
   build:
     commands:
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
       - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
-      - echo Build completed on `date`
+      - echo "Build completed on `date`"
 
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker images...
+      - echo "Build completed on `date`"
+      - echo "Pushing the Docker images..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-      - echo Writing image definitions file...
+      - echo "Writing image definitions file..."
       - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
       - cat imageDetail.json
-      - echo Configuring kubectl...
+      - echo "Configuring kubectl..."
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
-      - echo Updating Kubernetes deployment...
+      - echo "Updating Kubernetes deployment..."
       - |
         DEPLOYMENT_YAML="../Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml"
         if [ ! -f "$DEPLOYMENT_YAML" ]; then
@@ -53,7 +53,7 @@ phases:
         sed -i.bak "s|image:.*client-service-dev:.*|image: $REPOSITORY_URI:$IMAGE_TAG|g" "$DEPLOYMENT_YAML"
         kubectl apply -f "$DEPLOYMENT_YAML" -n $K8S_NAMESPACE
         kubectl rollout status deployment/client-service -n $K8S_NAMESPACE --timeout=300s
-        echo Deployment completed successfully!
+        echo "Deployment completed successfully!"
 
 artifacts:
   files:
