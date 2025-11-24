@@ -1,0 +1,27 @@
+## Requirements for the ocr_service
+
+## Core runtime / Web framework
+fastapi
+uvicorn  # ASGI server used to run the FastAPI app
+
+## Relational DB (if used)
+asyncpg  # Async PostgreSQL driver (optional)
+psycopg2-binary  # PostgreSQL driver (sync, useful for tooling)
+
+## Configuration & validation
+python-dotenv  # load environment variables from .env
+pydantic  # data validation and settings management
+
+## Logging
+python-json-logger  # JSON formatter for structured logging
+
+## OCR / image processing
+opencv-python  # OpenCV for image preprocessing
+pytesseract  # Python wrapper for the Tesseract OCR binary (requires tesseract installed)
+Pillow  # Python Imaging Library (PIL fork) for image handling
+PyMuPDF  # PDF parsing / rendering to images (fitz)
+numpy  # numerical operations used by image processing
+
+## Utilities / HTTP
+requests  # HTTP client for external API calls
+

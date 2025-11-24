@@ -1,0 +1,86 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: ginthi-dataplane-dev
+  region: ap-south-1
+  version: "1.34"  # Use latest stable version, adjust as needed
+  tags:
+    Environment: dev
+    Project: GinthiAI
+    ManagedBy: eksctl
+
+vpc:
+  id: vpc-03438362cd9251fe7
+  # Cluster is configured to use private subnets only
+  subnets:
+    private:
+      ap-south-1a:
+        id: subnet-09769ec6dcf8dc16e
+      ap-south-1b:
+        id: subnet-00ab51323c6d99c00
+      ap-south-1c:
+        id: subnet-0d60e0c6f3c58ca6f
+  # API endpoint access - both public and private
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+# IAM configuration
+iam:
+  withOIDC: true  # Required for AWS Load Balancer Controller and IRSA
+  serviceAccounts:
+    - metadata:
+        name: aws-load-balancer-controller
+        namespace: kube-system
+      wellKnownPolicies:
+        awsLoadBalancerController: true
+
+# Node groups
+managedNodeGroups:
+  - name: ginthi-ng-general
+    instanceType: t3a.medium
+    minSize: 2
+    maxSize: 5
+    desiredCapacity: 2
+    volumeSize: 50
+    volumeType: gp3
+    volumeEncrypted: true  # EBS encryption enabled by default
+    # For Ubuntu 24.04, try Ubuntu2404 first. If not supported, use custom AMI (see comment below)
+    amiFamily: Ubuntu2404  # Ubuntu 24.04 LTS
+    # Alternative: If Ubuntu2404 is not supported, use custom AMI:
+    # ami: ami-xxxxxxxxxxxxxxxxx  # Ubuntu 24.04 EKS-optimized AMI for ap-south-1
+    privateNetworking: true  # Nodes in private subnets only
+    ssh:
+      allow: false
+    labels:
+      role: general
+    tags:
+      Environment: dev
+      Project: GinthiAI
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+# Add-ons
+addons:
+  - name: vpc-cni
+    version: latest
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    version: latest
+    wellKnownPolicies:
+      ebsCSIController: true
+
+# CloudWatch logging
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+    logRetentionInDays: 7
+

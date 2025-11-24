@@ -1,0 +1,117 @@
+# 🚀 Deployment Guide for OCR Service
+
+This guide explains how to set up and run the OCR server, including the Tesseract OCR configuration steps.
+
+---
+
+## 🧩 1. Create a Virtual Environment
+
+python -m venv venv
+
+---
+
+## ⚙️ 2. Activate the Virtual Environment
+
+**Windows:**
+venv\Scripts\activate
+
+**Linux / macOS:**
+source venv/bin/activate
+
+---
+
+## 📦 3. Install Required Dependencies
+
+Install all dependencies listed in your `requirements.txt` file:
+
+pip install -r requirements.txt
+
+
+---
+
+## 🔠 4. Install Tesseract OCR Engine
+
+Tesseract must be installed at the system level because `pytesseract` is only a Python wrapper.
+
+### 🪟 Windows
+1. Download from https://github.com/UB-Mannheim/tesseract/wiki
+2. Install it (default path: C:\Program Files\Tesseract-OCR\tesseract.exe)
+3. (Optional) Add this path to your System Environment Variables → PATH
+
+### 🐧 Linux (Ubuntu/Debian)
+sudo apt update
+sudo apt install tesseract-ocr
+
+### 🍎 macOS
+brew install tesseract
+
+---
+
+## ⚙️ 5. Configure Tesseract Path in Python
+
+If Tesseract is not added to your system PATH, configure it manually in your Python code.
+
+add tesseract installation path into env file 
+
+TESSERACT_CMD = ''
+
+---
+
+## 📁 6. Navigate to the Project Folder
+
+cd ginthi_agents
+
+---
+
+## 🖥️ 7. Start the OCR Server
+
+python -m ocr_service.main
+
+This will start the OCR server locally.
+
+---
+
+## 🌐 8. Access API Documentation
+
+After running the server, open the link displayed in the terminal, for example:
+
+http://127.0.0.1:8006/docs
+
+This opens the Swagger UI for API documentation and testing.
+
+---
+
+## ✅ 9. Verify Tesseract Installation
+
+To confirm that Tesseract is properly installed, run:
+
+tesseract --version
+
+If you see version info like `tesseract 5.x.x`, your setup is correct.
+
+---
+
+## 🧠 Troubleshooting
+
+| Issue | Possible Cause | Solution |
+|--------|----------------|-----------|
+| `TesseractNotFoundError` | Tesseract not installed or not in PATH | Reinstall or configure path in Python |
+| Blank text output | Image is not clear or language not supported | Use better-quality image or install language pack |
+| `ModuleNotFoundError: No module named 'pytesseract'` | Dependency missing | Run `pip install pytesseract` |
+
+---
+
+## 🏁 Summary
+
+| Step | Description |
+|------|--------------|
+| 1 | Create and activate virtual environment |
+| 2 | Install Python dependencies |
+| 3 | Install system-level Tesseract |
+| 4 | Configure path (if needed) |
+| 5 | Run the OCR server |
+| 6 | Access API via `/docs` |
+
+---
+
+**Your OCR service is now ready to use! 🎉**

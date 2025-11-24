@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-service
+  namespace: default
+  labels:
+    app: client-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: client-service
+  template:
+    metadata:
+      labels:
+        app: client-service
+        version: v1
+    spec:
+      containers:
+      - name: client-service
+        image: 382806777834.dkr.ecr.ap-south-1.amazonaws.com/client-service-dev:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8005
+          name: http
+          protocol: TCP
+        env:
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8005"
+        - name: RELOAD
+          value: "false"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: WORKERS
+          value: "4"
+        envFrom:
+        - configMapRef:
+            name: client-service-config
+        - secretRef:
+            name: client-service-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health-check
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health-check
+            port: 8005
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+  namespace: default
+  labels:
+    app: client-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8005
+    protocol: TCP
+    name: http
+  selector:
+    app: client-service
+

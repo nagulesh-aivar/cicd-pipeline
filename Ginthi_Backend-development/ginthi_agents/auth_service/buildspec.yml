@@ -1,0 +1,57 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: "ap-south-1"
+    AWS_ACCOUNT_ID: "382806777834"
+    ECR_REPOSITORY: "auth-service-dev"
+    IMAGE_TAG: "latest"
+    EKS_CLUSTER_NAME: "ginthi-dataplane-dev"
+    K8S_NAMESPACE: "default"
+  parameter-store:
+    KUBECONFIG_BUCKET: "/ginthi/cicd/kubeconfig-bucket"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - echo Repository URI: $REPOSITORY_URI
+      - echo Image tag: $IMAGE_TAG
+
+  build:
+    commands:
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+      - echo Build completed on `date`
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo Writing image definitions file...
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+      - cat imageDetail.json
+      - |
+        # Update Kubernetes deployment with new image
+        echo Configuring kubectl...
+        aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+        - |
+          # Update deployment image
+          echo Updating Kubernetes deployment...
+          kubectl set image deployment/auth-service auth-service=$REPOSITORY_URI:$IMAGE_TAG -n $K8S_NAMESPACE
+          kubectl rollout status deployment/auth-service -n $K8S_NAMESPACE --timeout=300s
+          echo Deployment completed successfully!
+
+artifacts:
+  files:
+    - imageDetail.json
+    - '**/*'
+

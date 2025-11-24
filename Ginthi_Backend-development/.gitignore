@@ -1,0 +1,6 @@
+ginthi_agents/auth_service/.env
+ginthi_agents/client_service/.env
+/venv
+*logs/
+*downloads/
+/.venv

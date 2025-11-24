@@ -1,0 +1,591 @@
+[
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Bad Document",
+    "prompt": "Rule: Bad Document. Read the extracted documents and decide if the following issue is present:\n\"Completely unreadable doc with low OCR confidence (% TBD) including the Invoice No. itself \"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Completely unreadable doc with low OCR confidence (% TBD) including the Invoice No. itself ",
+    "relevant_agent": 0,
+    "issue_priority": 5,
+    "rule_category": "OCR",
+    "ping_target": [
+      "Invoice SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Flag",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Unclear Mandatory Fields",
+    "prompt": "Rule: Unclear Mandatory Fields. Read the extracted documents and decide if the following issue is present:\n\"Some fields are unclear / unreadable and hence not able to retrieve\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Some fields are unclear / unreadable and hence not able to retrieve",
+    "relevant_agent": 0,
+    "issue_priority": 3,
+    "rule_category": "OCR",
+    "ping_target": [
+      "Invoice SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Edit in Table",
+        "quick_action": "",
+        "CTA": ""
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Vendor Missing",
+    "prompt": "Rule: Vendor Missing. Read the extracted documents and decide if the following issue is present:\n\"Vendor details are not present in the vendor master\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Vendor details are not present in the vendor master",
+    "relevant_agent": 0,
+    "issue_priority": 4,
+    "rule_category": "Incomplete Data",
+    "ping_target": [
+      "AP SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Add to vendor master",
+        "quick_action": "",
+        "CTA": ""
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "grn",
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Mandatory Field Missing",
+    "prompt": "Rule: Mandatory Field Missing. Read the extracted documents and decide if the following issue is present:\n\"The Mandatory Fields are { Invoice Number, Client entity ID, Receiver+Source Location, date of Issue, Item [name, quantity,rate], Total GST, Total without GST and grand total }\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "The Mandatory Fields are { Invoice Number, Client entity ID, Receiver+Source Location, date of Issue, Item [name, quantity,rate], Total GST, Total without GST and grand total }",
+    "relevant_agent": 1,
+    "issue_priority": 4,
+    "rule_category": "Incomplete Data",
+    "ping_target": [
+      "Invoice SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Revise as per GRN",
+        "quick_action": "",
+        "CTA": ""
+      }
+    ],
+    "related_document_models": [
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Missing Linked Documents",
+    "prompt": "Rule: Missing Linked Documents. Read the extracted documents and decide if the following issue is present:\n\"where we arent able to find the linked documents using the common fields\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "where we arent able to find the linked documents using the common fields",
+    "relevant_agent": 1,
+    "issue_priority": 5,
+    "rule_category": "Incompleted Data",
+    "ping_target": [
+      "go to respective document spoc"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": []
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Exact Duplicate",
+    "prompt": "Rule: Exact Duplicate. Read the extracted documents and decide if the following issue is present:\n\"If the same vendor has uploaded a file with the same invoice number and the contents are the same\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "If the same vendor has uploaded a file with the same invoice number and the contents are the same",
+    "relevant_agent": 1,
+    "issue_priority": 5,
+    "rule_category": "Duplicate",
+    "ping_target": [
+      "Fyi to Invoice SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Differing Duplicate",
+    "prompt": "Rule: Differing Duplicate. Read the extracted documents and decide if the following issue is present:\n\"If the same vendor has uploaded a file with the same invoice number and the contents of the files are different\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "If the same vendor has uploaded a file with the same invoice number and the contents of the files are different",
+    "relevant_agent": 1,
+    "issue_priority": 5,
+    "rule_category": "Duplicate",
+    "ping_target": [
+      "Invoice SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Combine",
+        "quick_action": "",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "Accept one or the other",
+        "quick_action": "",
+        "CTA": ""
+      }
+    ],
+    "related_document_models": [
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Vendor Name Mismatch",
+    "prompt": "Rule: Vendor Name Mismatch. Read the extracted documents and decide if the following issue is present:\n\"Vendor does not match in the linked documents\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Vendor does not match in the linked documents",
+    "relevant_agent": 2,
+    "issue_priority": 5,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "purchase_order",
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Invoice Totals Mismatch",
+    "prompt": "Rule: Invoice Totals Mismatch. Read the extracted documents and decide if the following issue is present:\n\"Invoice and PO grand totals are not matching after collating relevant Invoices\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Invoice and PO grand totals are not matching after collating relevant Invoices",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Edit tables and checks",
+        "quick_action": "",
+        "CTA": ""
+      }
+    ],
+    "related_document_models": [
+      "invoice",
+      "purchase_order"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Mismatch",
+    "prompt": "Rule: Line Item Mismatch. Read the extracted documents and decide if the following issue is present:\n\"Make sure Invoice line items names, description are meaningfully same as those in PO GRN\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Make sure Invoice line items names, description are meaningfully same as those in PO GRN",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "invoice_po_grn"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item GST Rate Mismatch",
+    "prompt": "Rule: Line Item GST Rate Mismatch. Read the extracted documents and decide if the following issue is present:\n\"For each line item check that the  PO and Invoice have the same GST rate\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "For each line item check that the  PO and Invoice have the same GST rate",
+    "relevant_agent": 2,
+    "issue_priority": 3,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "Invoice SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "invoice_po"
+    ]
+  },
+  {
+    "breach_level": "Note",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Location Mismatch",
+    "prompt": "Rule: Location Mismatch. Read the extracted documents and decide if the following issue is present:\n\"Invoice Receiver location (shipped to) not the same as GRN location or Invoice in non cat\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Invoice Receiver location (shipped to) not the same as GRN location or Invoice in non cat",
+    "relevant_agent": 2,
+    "issue_priority": 2,
+    "rule_category": "Partial Match Issue",
+    "ping_target": [
+      "Vendor SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Note",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "HSN mismatch",
+    "prompt": "Rule: HSN mismatch. Read the extracted documents and decide if the following issue is present:\n\"Compare PO and Invoice line-item-wise to find mismatched HSN\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Compare PO and Invoice line-item-wise to find mismatched HSN",
+    "relevant_agent": 2,
+    "issue_priority": 2,
+    "rule_category": "Partial Match Issue",
+    "ping_target": [],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "invoice_po"
+    ]
+  },
+  {
+    "breach_level": "Note",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "GST Misclassification",
+    "prompt": "Rule: GST Misclassification. Read the extracted documents and decide if the following issue is present:\n\"Check if the right type of GST is being applied while comparing GRN location and Vendor dispatched location\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Check if the right type of GST is being applied while comparing GRN location and Vendor dispatched location",
+    "relevant_agent": 2,
+    "issue_priority": 2,
+    "rule_category": "Partial Match Issue",
+    "ping_target": [],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Flag",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "PO GRN Line Item Quantity Mismatch",
+    "prompt": "Rule: PO GRN Line Item Quantity Mismatch. Read the extracted documents and decide if the following issue is present:\n\"Check if the PO quantity and GRN quantity are mismatching\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Check if the PO quantity and GRN quantity are mismatching",
+    "relevant_agent": 2,
+    "issue_priority": 2,
+    "rule_category": "Partial Match Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "purchase_order",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Total Issue",
+    "prompt": "Rule: Total Issue. Read the extracted documents and decide if the following issue is present:\n\"Check if the item sub totals + freight - Discount + GST add up to total_amount\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Check if the item sub totals + freight - Discount + GST add up to total_amount",
+    "relevant_agent": 1,
+    "issue_priority": 4,
+    "rule_category": "Critical Data Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "purchase_order",
+      "grn",
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Total Issue",
+    "prompt": "Rule: Line Item Total Issue. Read the extracted documents and decide if the following issue is present:\n\"Check if Item Sub total are adding up as rate *quantity -discount +tax\"\nRespond with JSON: {\"triggered\": <true|false>, \"evidence\": [<field: value>...]}. If not enough information, set triggered to false and include a brief reason in evidence.",
+    "issue_description": "Check if Item Sub total are adding up as rate *quantity -discount +tax",
+    "relevant_agent": 1,
+    "issue_priority": 4,
+    "rule_category": "Critical Data Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [],
+    "related_document_models": [
+      "purchase_order",
+      "grn",
+      "invoice"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Sub-total Mismatch",
+    "prompt": "Rule: Line Item Sub-total Mismatch. Read PO, GRN, and Invoice and verify line-item subtotal per description:\n\"Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.\"\nEvaluate this scenario — UoM mismatch AND computed subtotals across PO/GRN/Invoice do NOT match within allowed tolerance. If true, the recommended action is: Edit GRN and/or PO to align; proceed only after approval.\nRespond JSON: {\"triggered\": <true|false>, \"evidence\": [{\"field\":\"...\",\"value\":\"...\"}]}.",
+    "issue_description": "Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "GRN",
+      "PO SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Always re-upload first",
+        "quick_action": "Upload",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "Fetch linked data via Invoice / GRN (Inv No / GRN No)",
+        "quick_action": "Search Text Box and Select",
+        "CTA": "Search"
+      },
+      {
+        "step": 3,
+        "description": "Manually enter or correct extracted fields if needed",
+        "quick_action": "Editable Table",
+        "CTA": ""
+      },
+      {
+        "step": 4,
+        "description": "If subtotal still mismatches under UoM difference, edit GRN/PO and submit for approval",
+        "quick_action": "Edit GRN / Edit PO",
+        "CTA": "Submit for Approval"
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Sub-total Mismatch",
+    "prompt": "Rule: Line Item Sub-total Mismatch. Read PO, GRN, and Invoice and verify line-item subtotal per description:\n\"Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.\"\nEvaluate this scenario — Invoice Quantity > GRN Quantity for the same line item (after UoM normalization). If true, the recommended action is: Raise a Debit Note post approval to recover excess billed quantity.\nRespond JSON: {\"triggered\": <true|false>, \"evidence\": [{\"field\":\"...\",\"value\":\"...\"}]}.",
+    "issue_description": "Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "GRN SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Always re-upload first",
+        "quick_action": "Upload",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "Verify quantities after normalizing UoM",
+        "quick_action": "Line Item Viewer",
+        "CTA": ""
+      },
+      {
+        "step": 3,
+        "description": "If Invoice Qty > GRN Qty, raise a debit note and route for approval",
+        "quick_action": "Generate Debit Note",
+        "CTA": "Send for Approval"
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Flag",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Sub-total Mismatch",
+    "prompt": "Rule: Line Item Sub-total Mismatch. Read PO, GRN, and Invoice and verify line-item subtotal per description:\n\"Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.\"\nEvaluate this scenario — GRN Quantity > Invoice Quantity for the same line item (after UoM normalization). If true, the recommended action is: Note a Credit Note or ignore post approval if operationally justified.\nRespond JSON: {\"triggered\": <true|false>, \"evidence\": [{\"field\":\"...\",\"value\":\"...\"}]}.",
+    "issue_description": "Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "GRN SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Always re-upload first",
+        "quick_action": "Upload",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "Verify quantities after normalizing UoM",
+        "quick_action": "Line Item Viewer",
+        "CTA": ""
+      },
+      {
+        "step": 3,
+        "description": "If GRN Qty > Invoice Qty, create a credit note or ignore with approval",
+        "quick_action": "Generate Credit Note",
+        "CTA": "Request Approval"
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Flag",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Sub-total Mismatch",
+    "prompt": "Rule: Line Item Sub-total Mismatch. Read PO, GRN, and Invoice and verify line-item subtotal per description:\n\"Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.\"\nEvaluate this scenario — PO Rate > Invoice Effective Rate (after discounts). If true, the recommended action is: Edit PO to reflect the lower invoice rate.\nRespond JSON: {\"triggered\": <true|false>, \"evidence\": [{\"field\":\"...\",\"value\":\"...\"}]}.",
+    "issue_description": "Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Always re-upload first",
+        "quick_action": "Upload",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "Confirm Invoice effective rate (after discounts) vs PO rate",
+        "quick_action": "Rate Calculator",
+        "CTA": ""
+      },
+      {
+        "step": 3,
+        "description": "If PO rate > Invoice rate, update the PO",
+        "quick_action": "Edit PO",
+        "CTA": "Submit Change"
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Block",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Sub-total Mismatch",
+    "prompt": "Rule: Line Item Sub-total Mismatch. Read PO, GRN, and Invoice and verify line-item subtotal per description:\n\"Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.\"\nEvaluate this scenario — PO Rate < Invoice Effective Rate (after discounts). If true, the recommended action is: Issue a Debit Note OR edit PO to match invoice rate post approval.\nRespond JSON: {\"triggered\": <true|false>, \"evidence\": [{\"field\":\"...\",\"value\":\"...\"}]}.",
+    "issue_description": "Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [
+      "PO SPOC"
+    ],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Always re-upload first",
+        "quick_action": "Upload",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "Confirm Invoice effective rate (after discounts) vs PO rate",
+        "quick_action": "Rate Calculator",
+        "CTA": ""
+      },
+      {
+        "step": 3,
+        "description": "If PO rate < Invoice rate, issue a debit note or edit the PO; seek approval",
+        "quick_action": "Generate Debit Note / Edit PO",
+        "CTA": "Request Approval"
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  },
+  {
+    "breach_level": "Note",
+    "client_workflow_id": "workflow_123",
+    "additional_tools": [],
+    "name": "Line Item Sub-total Mismatch",
+    "prompt": "Rule: Line Item Sub-total Mismatch. Read PO, GRN, and Invoice and verify line-item subtotal per description:\n\"Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.\"\nEvaluate this scenario — UoM mismatch detected, but subtotal parity is acceptable within tolerance. If true, the recommended action is: Record the UoM mismatch in notes for audit trail.\nRespond JSON: {\"triggered\": <true|false>, \"evidence\": [{\"field\":\"...\",\"value\":\"...\"}]}.",
+    "issue_description": "Check for Unit of measurement. If UoM isn't meaningfully the same, compare subtotal parity:\nLine item subtotal = (Invoice Rate - Discount) * Invoice Qty  ≟  PO Rate * GRN Qty.\nIf UoM is the same, check for quantity/rate mismatches at the line level.",
+    "relevant_agent": 2,
+    "issue_priority": 4,
+    "rule_category": "Critical Match Issue",
+    "ping_target": [],
+    "suggested_resolution": [
+      {
+        "step": 1,
+        "description": "Always re-upload first",
+        "quick_action": "Upload",
+        "CTA": ""
+      },
+      {
+        "step": 2,
+        "description": "UoM mismatch detected but subtotal parity acceptable; record for audit",
+        "quick_action": "Add Note",
+        "CTA": "Save Note"
+      }
+    ],
+    "related_document_models": [
+      "purchase_order",
+      "invoice",
+      "grn"
+    ]
+  }
+]
