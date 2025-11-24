@@ -29,7 +29,7 @@ phases:
           cd client_service || { echo "Error: client_service directory not found"; exit 1; }
         fi
         echo "Building from directory: $(pwd)"
-        docker build -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
+        docker build --platform linux/amd64 -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
         docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
         echo "Build completed on `date`"
 
