@@ -24,8 +24,8 @@ phases:
 
   build:
     commands:
-      - echo "Current directory: $(pwd)"
       - |
+        echo "Current directory: $(pwd)"
         if [ ! -f "Dockerfile" ]; then
           echo "Dockerfile not found in current directory, changing to client_service..."
           cd client_service || { echo "Error: client_service directory not found"; exit 1; }
