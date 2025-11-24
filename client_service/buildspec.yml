@@ -24,9 +24,16 @@ phases:
 
   build:
     commands:
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
-      - echo "Build completed on `date`"
+      - echo "Current directory: $(pwd)"
+      - |
+        if [ ! -f "Dockerfile" ]; then
+          echo "Dockerfile not found in current directory, changing to client_service..."
+          cd client_service || { echo "Error: client_service directory not found"; exit 1; }
+        fi
+        echo "Building from directory: $(pwd)"
+        docker build -t $REPOSITORY_URI:$IMAGE_TAG -f Dockerfile .
+        docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+        echo "Build completed on `date`"
 
   post_build:
     commands:
@@ -41,15 +48,19 @@ phases:
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
       - echo "Updating Kubernetes deployment..."
       - |
-        DEPLOYMENT_YAML="../Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml"
-        if [ ! -f "$DEPLOYMENT_YAML" ]; then
-          echo "Warning: Deployment YAML not found at $DEPLOYMENT_YAML, trying alternative path..."
+        # Find deployment YAML file
+        DEPLOYMENT_YAML=""
+        if [ -f "../Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml" ]; then
+          DEPLOYMENT_YAML="../Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml"
+        elif [ -f "Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml" ]; then
           DEPLOYMENT_YAML="Ginthi_Backend-development/ginthi_agents/k8s/client-service-deployment.yaml"
-        fi
-        if [ ! -f "$DEPLOYMENT_YAML" ]; then
+        elif [ -f "../k8s/client-service-deployment.yaml" ]; then
+          DEPLOYMENT_YAML="../k8s/client-service-deployment.yaml"
+        else
           echo "Error: Deployment YAML file not found. Please ensure the file exists in the repository."
           exit 1
         fi
+        echo "Using deployment YAML: $DEPLOYMENT_YAML"
         sed -i.bak "s|image:.*client-service-dev:.*|image: $REPOSITORY_URI:$IMAGE_TAG|g" "$DEPLOYMENT_YAML"
         kubectl apply -f "$DEPLOYMENT_YAML" -n $K8S_NAMESPACE
         kubectl rollout status deployment/client-service -n $K8S_NAMESPACE --timeout=300s
