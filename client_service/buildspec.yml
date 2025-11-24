@@ -19,8 +19,6 @@ phases:
       - IMAGE_TAG=${IMAGE_TAG:-$COMMIT_HASH}
       - echo "Build started on `date`"
       - echo "Building the Docker image..."
-      # - echo "Repository URI: $REPOSITORY_URI"
-      # - echo "Image tag: $IMAGE_TAG"
 
   build:
     commands:
